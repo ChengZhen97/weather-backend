@@ -1,12 +1,52 @@
-const express = require('express')
-const app = express()
-const port = 3000
-
-app.get('/data/2.5/weather', (req, res) => {
-  res.json({"coord":{"lon":-123.262,"lat":44.5646},"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04d"}],"base":"stations","main":{"temp":276.37,"feels_like":273.88,"temp_min":275.18,"temp_max":282.23,"pressure":1020,"humidity":100},"visibility":10000,"wind":{"speed":2.57,"deg":180},"clouds":{"all":100},"dt":1642444900,"sys":{"type":1,"id":3727,"country":"US","sunrise":1642434298,"sunset":1642467661},"timezone":-28800,"id":5720727,"name":"Corvallis","cod":200})
-})
+const express = require('express');
+const app = express();
+const port = 3000;
+const request = require('request');
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+const http = require('http');
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
+
+app.get('/v1/weather', authJWT, (req, res) => {
+  var url = 'http://api.openweathermap.org/data/2.5/weather?q=corvallis&appid=a99f1dbe7d7e7d5b6ce85970a31da042'
+  request(url, (error, response, body)=>{
+    console.log(body);
+    let json = JSON.parse(body);
+    res.json(json);
+  });
+
+})
+
+app.get('/v1/hello', authJWT, (req, res) => {
+  const sayHello = "Hello world";
+  res.json({sayHello});
+})
+
+app.post('/v1/auth', (req, res) =>{
+
+  const username = req.body.username;
+  const password = req.body.password;
+  //console.log(username, password);
+     if(username != "usr" || password != "pass"){
+    res.send("not an authorized user");
+  }else{
+    const myToken = "eyJwYXNzd29yZCI6IlBhc3N3b3JkIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY0NDE5MjE4OCwiZXhwIjoxNjQ0MTk1Nzg4fQ.YP0OKHcljuZf6X9V8tMimfcOrzTc63-ia9rRrgOA0eA"
+    res.json({myToken});
+  } 
+  //res.sendStatus(200);
+  res.json({requestBody : req.body})
+});
+
+const authJWT = (req, res, next) => {
+  const headerInfo = req.headers;
+
+  if(headerInfo != "eyJwYXNzd29yZCI6IlBhc3N3b3JkIiwiYWxnIjoiSFMyNTYifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTY0NDE5MjE4OCwiZXhwIjoxNjQ0MTk1Nzg4fQ.YP0OKHcljuZf6X9V8tMimfcOrzTc63-ia9rRrgOA0eA"){
+    return res.sendStatus(403);
+  }
+
+  next();
+}
 
