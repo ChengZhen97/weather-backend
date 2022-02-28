@@ -11,6 +11,7 @@ app.listen(port, () => {
 })
 
 app.get('/v1/weather', authJWT, (req, res) => {
+
   var url = 'http://api.openweathermap.org/data/2.5/weather?q=corvallis&appid=a99f1dbe7d7e7d5b6ce85970a31da042'
   request(url, (error, response, body)=>{
     console.log(body);
@@ -21,6 +22,7 @@ app.get('/v1/weather', authJWT, (req, res) => {
 })
 
 app.get('/v1/hello', authJWT, (req, res) => {
+
   const sayHello = "Hello world";
   res.json({sayHello});
 })
@@ -40,6 +42,7 @@ app.post('/v1/auth', (req, res) =>{
   res.json({requestBody : req.body})
 });
 
+
 const authJWT = (req, res, next) => {
   const headerInfo = req.headers;
 
@@ -49,4 +52,5 @@ const authJWT = (req, res, next) => {
 
   next();
 }
+
 
